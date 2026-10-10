@@ -8,8 +8,8 @@ use std::{
 };
 #[allow(unused_imports)]
 use web_splats::{
-    GaussianRenderer, PerspectiveCamera, PointCloud, Scene, SceneCamera, SplattingArgs, Split,
-    WGPUContext, io,
+    io, GaussianRenderer, PerspectiveCamera, PointCloud, Scene, SceneCamera, SplattingArgs, Split,
+    WGPUContext,
 };
 
 #[derive(Debug, Parser)]
@@ -73,6 +73,8 @@ async fn render_views(
             scene_center: None,
             scene_extend: None,
             background_color: wgpu::Color::TRANSPARENT,
+            cap_start: None,
+            cap_alpha: 1.,
         },
         &mut None,
     );
@@ -123,6 +125,8 @@ async fn render_views(
                     scene_center: None,
                     scene_extend: None,
                     background_color: wgpu::Color::TRANSPARENT,
+                    cap_start: None,
+                    cap_alpha: 1.,
                 },
                 &mut None,
             );

@@ -7,8 +7,8 @@ use indicatif::{ProgressBar, ProgressIterator, ProgressStyle};
 use std::{fs::File, path::PathBuf, time::Duration};
 #[allow(unused_imports)]
 use web_splats::{
-    GaussianRenderer, PerspectiveCamera, PointCloud, Scene, SceneCamera, SplattingArgs, Split,
-    WGPUContext, io::GenericGaussianPointCloud,
+    io::GenericGaussianPointCloud, GaussianRenderer, PerspectiveCamera, PointCloud, Scene,
+    SceneCamera, SplattingArgs, Split, WGPUContext,
 };
 
 #[derive(Debug, Parser)]
@@ -101,6 +101,8 @@ async fn render_views(
                 scene_center: None,
                 scene_extend: None,
                 background_color: wgpu::Color::TRANSPARENT,
+                cap_start: None,
+                cap_alpha: 1.,
             },
             &mut None,
         );

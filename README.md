@@ -2,6 +2,31 @@
 
 # 3D Gaussian Splatting Renderer implemented in WebGPU (WGPU) and Rust
 
+## Headless camera path video
+
+`pathrender` renders a standard binary 3DGS `point_cloud.ply` with SH degree 0
+colours to an H.264 MP4. The camera path is the splatcam JSON schema: a global
+`ease` cubic Bezier, `frame` placement, and time keys with `zoom`, `yaw`, `pitch`,
+`roll`, `pan_x`, and `pan_y`. A key's optional `ease` controls the segment ending
+at that key. Angles are degrees; pan and frame offsets are fractions of frame
+height. Zoom multiplies focal length. The camera orbits the point cloud centroid.
+
+```sh
+VK_ICD_FILENAMES=/usr/share/vulkan/icd.d/lvp_icd.json WGPU_BACKEND=vulkan \
+  cargo run --release --bin pathrender -- point_cloud.ply \
+  --path r14_move.json --size 1920x1080 --fps 30 --bg '#CDCECF' \
+  --out r14.mp4
+```
+
+Omit `--path` for the 2.5 second default zoom 0.55→1 and 360° orbit.
+`--tail 0.6` holds the final path frame. `--limit-frames` can render a short
+benchmark. Frames are read back and sent to ffmpeg through a raw RGB pipe;
+no intermediate PNG sequence or image effects are used.
+An optional sibling `point_cloud.json` with `mesh_samples` marks the start of
+source-attached overhead splats. Their visibility falls as yaw turns away from
+the source view. `--cap-start` overrides the metadata. The colour buffer is
+composited onto the solid background after alpha readback.
+
 This code implements a renderer for the reconstructions obtained with [3D Gaussian Splatting](https://github.com/graphdeco-inria/gaussian-splatting)
 
 [👉 Click to run the web demo 👈](https://keksboter.github.io/web-splat/demo.html)

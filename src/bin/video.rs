@@ -4,13 +4,13 @@ use clap::Parser;
 use image::{ImageBuffer, Rgb};
 use indicatif::{ProgressIterator, ProgressStyle};
 use std::{
-    fs::{File, create_dir_all},
+    fs::{create_dir_all, File},
     path::PathBuf,
     time::Duration,
 };
 use web_splats::{
-    Animation, GaussianRenderer, PointCloud, Scene, SceneCamera, SplattingArgs, TrackingShot,
-    WGPUContext, io, smoothstep,
+    io, smoothstep, Animation, GaussianRenderer, PointCloud, Scene, SceneCamera, SplattingArgs,
+    TrackingShot, WGPUContext,
 };
 
 #[derive(Debug, Parser)]
@@ -129,6 +129,8 @@ async fn render_tracking_shot(
                 scene_center: None,
                 scene_extend: None,
                 background_color: wgpu::Color::TRANSPARENT,
+                cap_start: None,
+                cap_alpha: 1.,
             },
             &mut None,
         );

@@ -10,7 +10,7 @@ use crate::{
 use std::num::NonZeroU64;
 use std::time::Duration;
 
-use wgpu::{Extent3d, MultisampleState, include_wgsl};
+use wgpu::{include_wgsl, Extent3d, MultisampleState};
 
 use cgmath::{EuclideanSpace, Matrix4, Point3, SquareMatrix, Vector2, Vector4};
 
@@ -615,6 +615,10 @@ pub struct SplattingArgs {
     pub scene_center: Option<Point3<f32>>,
     pub scene_extend: Option<f32>,
     pub background_color: wgpu::Color,
+    /// First source-attached splat in the point cloud, if present.
+    pub cap_start: Option<u32>,
+    /// View-dependent visibility of the source-attached splats (0..1).
+    pub cap_alpha: f32,
 }
 
 pub const DEFAULT_KERNEL_SIZE: f32 = 0.3;
@@ -631,7 +635,8 @@ pub struct SplattingArgsUniform {
 
     walltime: f32,
     scene_extend: f32,
-    _pad: [u32; 2],
+    cap_start: u32,
+    cap_alpha: f32,
 
     scene_center: Vector4<f32>,
 }
@@ -660,6 +665,8 @@ impl SplattingArgsUniform {
                 .to_vec()
                 .extend(0.),
             walltime: args.walltime.as_secs_f32(),
+            cap_start: args.cap_start.unwrap_or(u32::MAX),
+            cap_alpha: args.cap_alpha.clamp(0., 1.),
             scene_center: pc.center().to_vec().extend(0.),
             scene_extend: args
                 .scene_extend
@@ -687,7 +694,8 @@ impl Default for SplattingArgsUniform {
             walltime: 0.,
             scene_center: Vector4::new(0., 0., 0., 0.),
             scene_extend: 1.,
-            _pad: [0; 2],
+            cap_start: u32::MAX,
+            cap_alpha: 1.,
         }
     }
 }

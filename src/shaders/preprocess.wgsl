@@ -83,6 +83,8 @@ struct RenderSettings {
     kernel_size: f32,
     walltime: f32,
     scene_extend: f32,
+    cap_start: u32,
+    cap_alpha: f32,
     center: vec3<f32>,
 }
 
@@ -173,6 +175,10 @@ fn preprocess(@builtin(global_invocation_id) gid: vec3<u32>, @builtin(num_workgr
     let a = unpack2x16float(vertex.opacity);
     let xyz = vec3<f32>(vertex.x, vertex.y, vertex.z);
     var opacity = a.x;
+    if idx >= render_settings.cap_start {
+        opacity *= render_settings.cap_alpha;
+        if opacity < 0.001 { return; }
+    }
 
     if any(xyz < render_settings.clipping_box_min.xyz) || any(xyz > render_settings.clipping_box_max.xyz) {
         return;
@@ -193,13 +199,16 @@ fn preprocess(@builtin(global_invocation_id) gid: vec3<u32>, @builtin(num_workgr
 
     let cov_sparse = cov_coefs(idx);
 
-    let walltime = render_settings.walltime;
-    var scale_mod = 0.;
-    let dd = 5. * distance(render_settings.center, xyz) / render_settings.scene_extend;
-    if walltime > dd {
-        scale_mod = smoothstep(0., 1., (walltime - dd));
+    // The headless path renderer sets walltime=100s to keep full Gaussian size.
+    // Other clients retain the viewer's existing entrance animation.
+    var scale_mod = 1.;
+    if render_settings.walltime < 99. {
+        scale_mod = 0.;
+        let dd = 5. * distance(render_settings.center, xyz) / render_settings.scene_extend;
+        if render_settings.walltime > dd {
+            scale_mod = smoothstep(0., 1., render_settings.walltime - dd);
+        }
     }
-
     let scaling = render_settings.gaussian_scaling * scale_mod;
     let Vrk = mat3x3<f32>(
         cov_sparse[0], cov_sparse[1], cov_sparse[2],

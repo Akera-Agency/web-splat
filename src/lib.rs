@@ -15,9 +15,9 @@ use cgmath::{Deg, EuclideanSpace, Point3, Quaternion, UlpsEq, Vector2, Vector3};
 use egui::FullOutput;
 use num_traits::One;
 
+use utils::key_to_num;
 #[cfg(not(target_arch = "wasm32"))]
 use utils::RingBuffer;
-use utils::key_to_num;
 
 #[cfg(target_arch = "wasm32")]
 use wasm_bindgen::prelude::wasm_bindgen;
@@ -261,6 +261,8 @@ impl WindowContext {
                 scene_center: None,
                 scene_extend: None,
                 background_color: wgpu::Color::BLACK,
+                cap_start: None,
+                cap_alpha: 1.,
             },
             pc,
             // camera: view_camera,
